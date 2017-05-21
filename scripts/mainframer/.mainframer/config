@@ -1,0 +1,3 @@
+remote_machine=mainframer-ubuntu
+local_compression_level=5
+remote_compression_level=5

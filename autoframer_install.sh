@@ -39,4 +39,22 @@ echo "printing from remote machine, means we are connected successfully"
 echo "XOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOX"
 EOF
 
-# 46.101.40.213
+current_user=$(whoami)
+autoframer_preferences=/Users/$current_user/Library/Autoframer
+mkdir -p $autoframer_preferences
+
+cp -r scripts/mainframer/ $autoframer_preferences
+
+echo -e "remote_machine=$host_alias
+local_compression_level=5
+remote_compression_level=5" > $autoframer_preferences/.mainframer/config
+
+cp scripts/autoframer_setup.sh /usr/local/bin/
+mv /usr/local/bin/autoframer_setup.sh /usr/local/bin/autoframer
+
+
+echo "Setup is finished
+all you need to run 'bash autoframer' from you project directory
+---
+also you can ssh the remote maching using: ssh $host_alias
+"
