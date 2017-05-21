@@ -1,69 +1,42 @@
 #!/bin/bash
-# to run this script on remote server
-# ssh root@host_ip_address 'bash -s' < autoframer.sh
+# set -e
 
-# set -xe
+echo -n "Please enter host machine ip address:"
+read host_ip_address
 
+[ -z $host_ip_address ] && echo "Invalid host ip address" && exit 1
 
-function printAndSleep() {
-	echo
-	echo "$1"
-	echo
-	if [ -z $2 ]; then
-		sleep 1
-	else
-		sleep $2
-	fi
+echo -n "Please enter host alias name:"
+read host_alias
 
-}
+[ -z $host_alias ] && echo "Invalid host alias" && exit 1 
 
-printAndSleep "updating apt" 10
+echo -n "Please enter the username to be created on remote machine:"
+read username
 
-# update apt on remote machine
-apt-get -y update
+[ -z $username ] && echo "Invalid username" && exit 1
 
-printAndSleep "installing OpenJdk 8" 10
+# Android sdk setup
+ssh -oStrictHostKeyChecking=no root@$host_ip_address 'bash -s' <scripts/android_sdk_frame.sh
 
-# install jdk8
-apt-get -y install openjdk-8-jdk
+# Create user ssh key & remote host alias
+bash $(pwd)/scripts/ssh_local_framer.sh $host_ip_address $host_alias $username
 
-printAndSleep "installing unzip tool"
+# Add created user to the remote machine
+user_ssh_key_content=$(cat ~/.ssh/id_rsa_$username.pub)
+scp scripts/remote_machine_setup.sh root@$host_ip_address:/root
 
-# install unzip tool
-apt-get -y install unzip
+ssh -oStrictHostKeyChecking=no root@$host_ip_address <<EOF
+bash remote_machine_setup.sh $username "$user_ssh_key_content"
+EOF
 
-printAndSleep "downloading linux android sdk tools"
+# ssh -oStrictHostKeyChecking=no root@$host_ip_address 'bash -s' $username "$user_ssh_key_content" <scripts/remote_machine_setup.sh
 
-# download android linux sdk tools
-wget -nc -O sdk-tools-linux.zip https://dl.google.com/android/repository/sdk-tools-linux-3859397.zip
+# Testing connection
+ssh $host_alias <<EOF
+echo "XOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOX"
+echo "printing from remote machine, means we are connected successfully"
+echo "XOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOX"
+EOF
 
-printAndSleep "creating our own sdk directory (android-sdk)"
-
-# create sdk directory
-mkdir android-sdk
-
-printAndSleep "unzipping linux android sdk tools"
-
-# unzip android linux sdk tools
-unzip -o sdk-tools-linux.zip -d android-sdk/
-
-printAndSleep "navigating into android-sdk dir"
-
-# navigate into our directory
-cd android-sdk/
-pwd
-
-printAndSleep "installing android sdk packages"
-
-declare -a arr=("build-tools;25.0.3" "cmake;3.6.3155560" "extras;android;m2repository" "extras;google;google_play_services" "extras;google;m2repository" "extras;m2repository;com;android;support;constraint;constraint-layout-solver;1.0.2" "extras;m2repository;com;android;support;constraint;constraint-layout;1.0.2" "lldb;2.3" "patcher;v4" "platform-tools" "platforms;android-25")
-
-for package in "${arr[@]}"; do
-	echo
-	printAndSleep "Installing $package"
-	echo "y" | ./tools/bin/sdkmanager "$package"
-done
-
-printAndSleep "Checking for Android SdkManager updates..."
-./tools/bin/sdkmanager --update
-
-echo $0
+# 46.101.40.213
