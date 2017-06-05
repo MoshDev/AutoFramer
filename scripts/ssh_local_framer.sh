@@ -4,6 +4,8 @@
 host_ip_address=$1
 host_name=$2
 username=$3
+output_dir=$4
+[[ -z $output_dir ]] && output_dir=~/.ssh/
 
 if [ -z $host_ip_address ]; then
 	echo -n "Enter your remote machine ip address:"
@@ -20,7 +22,7 @@ if [ -z $username ]; then
 	read username
 fi
 
-ssh_path=~/.ssh/
+mkdir -p $ssh_path
 
 ssh-keygen -t rsa -b 4096 -C $username -N "" -f "$ssh_path/id_rsa_$username"
 

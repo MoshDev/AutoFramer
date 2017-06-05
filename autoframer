@@ -1,0 +1,74 @@
+#!/bin/bash
+# Use -gt 1 to consume two arguments per pass in the loop (e.g. each
+# argument has a corresponding value to go with it).
+# Use -gt 0 to consume one or more arguments per pass in the loop (e.g.
+# some arguments don't have a corresponding value to go with it such
+# as in the --default example).
+# note: if this is set to -gt 0 the /etc/hosts part is not recognized ( may be a bug )
+
+#--add-user -ip 1.1.1.1 -user root -alias local_host -r new_user1 -o /users/new_user1
+
+while [[ $# -gt 0 ]]; do
+	key="$1"
+
+	case $key in
+		-i | --ip)
+			HOST_IP_ADDRESS="$2"
+			shift # past argument
+			;;
+		-u | --user)
+			HOST_USER="$2"
+			shift # past argument
+			;;
+		-a | --alias)
+			HOST_ALIAS="$2"
+			shift # past argument
+			;;
+		-r | --remote-user)
+			REMOTE_USER="$2"
+			shift # past argument
+			;;
+		-o | --output)
+			OUTPUT_DIR="$2"
+			shift # past argument
+			;;
+		--add-user)
+			NEW_USER=1
+			;;
+		*) ;; # unknown option
+	esac
+	shift # past argument or value
+done
+
+echo NEW_USER = "${NEW_USER}"
+echo HOST_IP_ADDRESS = "${HOST_IP_ADDRESS}"
+echo LOCAL_USER = "${HOST_USER}"
+echo HOST_ALIAS = "${HOST_ALIAS}"
+echo HOST_USER = "${REMOTE_USER}"
+echo OUTPUT_DIR = "${OUTPUT_DIR}"
+
+set -e
+
+mkdir -p $OUTPUT_DIR
+
+set +e
+
+output_dir=get_realpath $OUTPUT_DIR
+
+echo OUTPUT_DIR = "${output_dir}"
+
+exit
+
+if [ $NEW_USER == 1 ]; then
+	# Create user ssh key & remote host alias
+	bash $(pwd)/scripts/ssh_local_framer.sh $HOST_IP_ADDRESS $HOST_ALIAS $REMOTE_USER $OUTPUT_DIR
+else
+	echo "NEW USER NOT 1"
+fi
+
+# ssh $HOST_USER@$HOST_IP_ADDRESS 
+
+# if [[ -n $1 ]]; then
+# 	echo "Last line of file specified as non-opt/last argument:"
+# 	tail -1 $1
+# fi
