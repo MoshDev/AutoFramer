@@ -266,53 +266,48 @@ function installFullAndroidSdk() {
 	installAndroidSdk "${fullPackages[@]}"
 }
 
-function readArguments() {
+while [[ $# -gt 0 ]]; do
+	key="$1"
 
-	while [[ $# -gt 0 ]]; do
-		key="$1"
+	case $key in
+		-n | --none)
+			SDK_INSTALLATION=-1
+			;;
+		-b | --basic)
+			SDK_INSTALLATION=0
+			;;
+		-f | --full)
+			SDK_INSTALLATION=1
+			;;
+		-u | --update)
+			SDK_UPDATE=1
+			;;
+		-j | --java)
+			WITH_JAVA=1
+			;;
+		-a | --apt)
+			WITH_APT=1
+			;;
+		-v | --version)
+			printVersion
+			;;
+		*) ;; # unknown option
+	esac
+	shift # past argument or value
+done
 
-		case $key in
-			-n | --none)
-				SDK_INSTALLATION=-1
-				;;
-			-b | --basic)
-				SDK_INSTALLATION=0
-				;;
-			-f | --full)
-				SDK_INSTALLATION=1
-				;;
-			-u | --update)
-				SDK_UPDATE=1
-				;;
-			-j | --java)
-				WITH_JAVA=1
-				;;
-			-a | --apt)
-				WITH_APT=1
-				;;
-			-v | --version)
-				printVersion
-				;;
-			*) ;; # unknown option
-		esac
-		shift # past argument or value
-	done
+if [ $DEBUG == 1 ]; then
+	SDK_INSTALLATION=1
+	SDK_UPDATE=1
+	WITH_JAVA=1
+	WITH_APT=1
+fi
 
-	if [ $DEBUG == 1 ]; then
-		SDK_INSTALLATION=1
-		SDK_UPDATE=1
-		WITH_JAVA=1
-		WITH_APT=1
-	fi
-
-	echo SDK_INSTALLATION = "${SDK_INSTALLATION}"
-	echo WITH_JAVA = "${WITH_JAVA}"
-	echo WITH_APT = "${WITH_APT}"
-	echo ANDROID_SDK_EXISTS = "${ANDROID_SDK_EXISTS}"
-	echo SDK_UPDATE = "${SDK_UPDATE}"
-}
-
-readArguments
+echo SDK_INSTALLATION = "${SDK_INSTALLATION}"
+echo WITH_JAVA = "${WITH_JAVA}"
+echo WITH_APT = "${WITH_APT}"
+echo ANDROID_SDK_EXISTS = "${ANDROID_SDK_EXISTS}"
+echo SDK_UPDATE = "${SDK_UPDATE}"
 
 [ $WITH_APT == 1 ] && updateApt
 [ $WITH_JAVA == 1 ] && installJava
