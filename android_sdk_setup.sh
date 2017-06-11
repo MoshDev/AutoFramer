@@ -10,16 +10,16 @@ VERSION=1.0.0
 # SDK_UPDATE = 0 = Force Installtion if exists and not --none
 # SDK_UPDATE = 1 = Update if SDK exists
 
-# WITH_JAVA = 0 = No Java Installation
-# WITH_JAVA = 1 = With Java Installation
+# NO_JAVA = 0 = With Java Installation
+# NO_JAVA = 1 = Skip Java Installation
 
-# APT_UPDATE = 0 = No APT Update
-# APT_UPDATE = 1 = With APT Update
+# NO_APT = 0 = With APT Update
+# NO_APT = 1 = Skip APT Update
 
 SDK_INSTALLATION=0
 SDK_UPDATE=1
-WITH_JAVA=1
-WITH_APT=1
+NO_JAVA=0
+NO_APT=0
 ANDROID_SDK_EXISTS=0
 [[ -d "$ANDROID_SDK_DIR" ]] && ANDROID_SDK_EXISTS=1
 
@@ -282,11 +282,11 @@ while [[ $# -gt 0 ]]; do
 		-u | --update)
 			SDK_UPDATE=1
 			;;
-		-j | --java)
-			WITH_JAVA=1
+		-j | --no-java)
+			NO_JAVA=1
 			;;
-		-a | --apt)
-			WITH_APT=1
+		-a | --no-apt)
+			NO_APT=1
 			;;
 		-v | --version)
 			printVersion
@@ -299,18 +299,18 @@ done
 if [ $DEBUG == 1 ]; then
 	SDK_INSTALLATION=1
 	SDK_UPDATE=1
-	WITH_JAVA=1
-	WITH_APT=1
+	NO_JAVA=0
+	NO_APT=0
 fi
 
 echo SDK_INSTALLATION = "${SDK_INSTALLATION}"
-echo WITH_JAVA = "${WITH_JAVA}"
-echo WITH_APT = "${WITH_APT}"
+echo NO_JAVA = "${NO_JAVA}"
+echo NO_APT = "${NO_APT}"
 echo ANDROID_SDK_EXISTS = "${ANDROID_SDK_EXISTS}"
 echo SDK_UPDATE = "${SDK_UPDATE}"
 
-[ $WITH_APT == 1 ] && updateApt
-[ $WITH_JAVA == 1 ] && installJava
+[ $NO_APT == 0 ] && updateApt
+[ $NO_JAVA == 0 ] && installJava
 
 if [ $ANDROID_SDK_EXISTS == 1 ] && [ $SDK_UPDATE == 1 ] && [ $SDK_INSTALLATION -gt -1 ]; then
 	updateAndroidSdk
