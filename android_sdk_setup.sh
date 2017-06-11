@@ -16,6 +16,13 @@ VERSION=1.0.0
 # APT_UPDATE = 0 = No APT Update
 # APT_UPDATE = 1 = With APT Update
 
+SDK_INSTALLATION=0
+SDK_UPDATE=1
+WITH_JAVA=1
+WITH_APT=1
+ANDROID_SDK_EXISTS=0
+[[ -d "$ANDROID_SDK_DIR" ]] && ANDROID_SDK_EXISTS=1
+
 ANDROID_SDK_DIR=$HOME/android-sdk
 ANDROID_LINUX_SDK_URL="https://dl.google.com/android/repository/sdk-tools-linux-3859397.zip"
 
@@ -120,13 +127,6 @@ basicPackages=("add-ons;addon-google_apis-google-24"
 	"ndk-bundle"
 	"tools"
 	"platform-tools")
-
-SDK_INSTALLATION=0
-SDK_UPDATE=0
-WITH_JAVA=0
-WITH_APT=0
-ANDROID_SDK_EXISTS=0
-[[ -d "$ANDROID_SDK_DIR" ]] && ANDROID_SDK_EXISTS=1
 
 function printAndSleep() {
 	((counter++))
